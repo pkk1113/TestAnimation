@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PlayerCtrl : MonoBehaviour
 {
+    [SerializeField] float jumpTime = 2f;
+    [SerializeField] float fallTime = 2f;
+
     Animator animator;
     bool grounded = true;
 
@@ -23,7 +26,7 @@ public class PlayerCtrl : MonoBehaviour
             animator.SetBool("jumping", true);
             animator.SetBool("grounded", false);
             animator.SetTrigger("takeOf");
-            StartCoroutine(StopJumpAfterTwoSec());
+            StartCoroutine(StopJumpAfterSec());
         }
 
         /// 이동
@@ -50,22 +53,20 @@ public class PlayerCtrl : MonoBehaviour
         }
     }
 
-    IEnumerator StopJumpAfterTwoSec()
+    IEnumerator StopJumpAfterSec()
     {
-        // 2초 대기
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(jumpTime);
 
         // 점핑 종료
         animator.SetBool("jumping", false);
 
         // 떨어지기 시작
-        StartCoroutine(StopFallAfterTwoSec());
+        StartCoroutine(StopFallAfterSec());
     }
 
-    IEnumerator StopFallAfterTwoSec()
+    IEnumerator StopFallAfterSec()
     {
-        // 2초 대기
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(fallTime);
 
         // 착지
         grounded = true;
