@@ -4,16 +4,37 @@ using UnityEngine;
 
 public class PlayerCtrl : MonoBehaviour
 {
+    [SerializeField] float takeOfTime = 0.2f;
     [SerializeField] float jumpTime = 2f;
     [SerializeField] float fallTime = 2f;
 
     Animator animator;
-    bool grounded = true;
+    bool _grounded = true;
+    bool _jumping = false;
+    bool grounded
+    {
+        get => _grounded;
+        set
+        {
+            _grounded = value;
+            animator.SetBool("grounded", _grounded);
+        }
+    }
+    bool jumping
+    {
+        get => _jumping;
+        set
+        {
+            _jumping = value;
+            animator.SetBool("jumping", _jumping);
+        }
+    }
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         animator.SetBool("grounded", grounded);
+        animator.SetBool("jumping", jumping);
     }
 
     // Update is called once per frame
@@ -22,11 +43,8 @@ public class PlayerCtrl : MonoBehaviour
         /// 점프
         if (Input.GetKey(KeyCode.Z) && grounded)
         {
-            grounded = false;
-            animator.SetBool("jumping", true);
-            animator.SetBool("grounded", false);
             animator.SetTrigger("takeOf");
-            StartCoroutine(StopJumpAfterSec());
+            StartCoroutine(StopTakeOfAfterSec());
         }
 
         /// 이동
@@ -53,12 +71,24 @@ public class PlayerCtrl : MonoBehaviour
         }
     }
 
+    IEnumerator StopTakeOfAfterSec()
+    {
+        yield return new WaitForSeconds(takeOfTime);
+
+        // 점핑 시작
+        grounded = false;
+        jumping = true;
+
+        // 떨어지기 시작
+        StartCoroutine(StopJumpAfterSec());
+    }
+
     IEnumerator StopJumpAfterSec()
     {
         yield return new WaitForSeconds(jumpTime);
 
         // 점핑 종료
-        animator.SetBool("jumping", false);
+        jumping = false;
 
         // 떨어지기 시작
         StartCoroutine(StopFallAfterSec());
@@ -70,6 +100,5 @@ public class PlayerCtrl : MonoBehaviour
 
         // 착지
         grounded = true;
-        animator.SetBool("grounded", true);
     }
 }
